@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Битва Отжиманий</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--card:#12121a;--card2:#1a1a28;
+  --accent:#ff4d4d;--accent2:#ff6b35;--gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32;
+  --text:#e8e8f0;--text2:#8888a0;--green:#00e676;--blue:#448aff;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{max-width:800px;margin:0 auto;padding:16px}
+
+/* Header */
+.header{text-align:center;padding:32px 0 24px;position:relative}
+.header h1{font-size:2.4em;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.header p{color:var(--text2);margin-top:6px;font-size:1.05em}
+.fire-icon{font-size:1.4em;-webkit-text-fill-color:initial}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:4px;margin-bottom:24px}
+.tab{flex:1;padding:12px;text-align:center;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95em;color:var(--text2);transition:.2s;border:none;background:none}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 20px rgba(255,77,77,.3)}
+.tab:hover:not(.active){color:var(--text);background:var(--card2)}
+
+/* Pages */
+.page{display:none;animation:fadeIn .3s}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{background:var(--card);border-radius:16px;padding:24px;margin-bottom:16px;border:1px solid rgba(255,255,255,.05)}
+.card-title{font-size:1.1em;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* Timer */
+.timer-display{font-size:4.5em;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:4px;padding:20px 0;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.timer-label{text-align:center;color:var(--text2);margin-bottom:8px;font-size:.9em;text-transform:uppercase;letter-spacing:2px}
+
+/* Controls */
+.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:14px 28px;border:none;border-radius:12px;font-size:1em;font-weight:700;cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:1px}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 20px rgba(255,77,77,.3)}
+.btn-primary:hover{box-shadow:0 6px 30px rgba(255,77,77,.5)}
+.btn-success{background:linear-gradient(135deg,#00c853,var(--green));color:#000}
+.btn-success:hover{box-shadow:0 6px 30px rgba(0,230,118,.4)}
+.btn-danger{background:linear-gradient(135deg,#d50000,#ff1744);color:#fff}
+.btn-danger:hover{box-shadow:0 6px 30px rgba(255,23,68,.4)}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid rgba(255,255,255,.1)}
+.btn-secondary:hover{background:#252538}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Pushup Counter */
+.counter-section{text-align:center;padding:20px 0}
+.counter-big{font-size:8em;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.counter-label{color:var(--text2);font-size:1.1em;margin-top:4px}
+.counter-btns{display:flex;gap:16px;justify-content:center;margin-top:24px}
+.counter-btn{width:100px;height:100px;border-radius:50%;border:none;font-size:2.5em;font-weight:900;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+.counter-btn:active{transform:scale(.9)}
+.counter-btn.plus{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 25px rgba(255,77,77,.4)}
+.counter-btn.minus{background:var(--card2);color:var(--text2);border:2px solid rgba(255,255,255,.1)}
+.counter-btn.plus:hover{box-shadow:0 6px 35px rgba(255,77,77,.6)}
+
+/* Round selector */
+.rounds{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.round-btn{padding:10px 20px;border-radius:10px;border:2px solid rgba(255,255,255,.1);background:var(--card2);color:var(--text);font-weight:600;cursor:pointer;transition:.2s}
+.round-btn.active{border-color:var(--accent);background:rgba(255,77,77,.15);color:var(--accent)}
+.round-btn:hover:not(.active){border-color:rgba(255,255,255,.2)}
+
+/* Participants */
+.input-group{display:flex;gap:8px;margin-bottom:16px}
+.input{flex:1;padding:14px 18px;border-radius:12px;border:2px solid rgba(255,255,255,.08);background:var(--card2);color:var(--text);font-size:1em;transition:.2s;outline:none}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,77,77,.1)}
+.input::placeholder{color:var(--text2)}
+
+.participant-list{display:flex;flex-direction:column;gap:8px}
+.participant{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card2);border-radius:12px;transition:.2s}
+.participant:hover{background:#1f1f32}
+.participant-rank{font-weight:900;font-size:1.2em;width:36px;text-align:center}
+.participant-rank.gold{color:var(--gold)}
+.participant-rank.silver{color:var(--silver)}
+.participant-rank.bronze{color:var(--bronze)}
+.participant-info{flex:1}
+.participant-name{font-weight:600}
+.participant-score{color:var(--text2);font-size:.9em}
+.participant-actions{display:flex;gap:6px}
+.small-btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:.85em;transition:.2s}
+.small-btn.score{background:rgba(255,77,77,.15);color:var(--accent)}
+.small-btn.score:hover{background:rgba(255,77,77,.25)}
+.small-btn.delete{background:rgba(255,23,68,.1);color:#ff1744}
+.small-btn.delete:hover{background:rgba(255,23,68,.2)}
+
+/* Leaderboard */
+.leaderboard-item{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--card2);border-radius:14px;margin-bottom:8px;transition:.2s;position:relative;overflow:hidden}
+.leaderboard-item:hover{transform:translateX(4px)}
+.leaderboard-item.top1{border:1px solid rgba(255,215,0,.3);background:linear-gradient(135deg,rgba(255,215,0,.08),transparent)}
+.leaderboard-item.top2{border:1px solid rgba(192,192,192,.2)}
+.leaderboard-item.top3{border:1px solid rgba(205,127,50,.2)}
+.lb-rank{font-size:2em;font-weight:900;width:50px;text-align:center}
+.lb-rank.top1{color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,.5)}
+.lb-rank.top2{color:var(--silver)}
+.lb-rank.top3{color:var(--bronze)}
+.lb-info{flex:1}
+.lb-name{font-weight:700;font-size:1.15em}
+.lb-rounds{color:var(--text2);font-size:.85em;margin-top:2px}
+.lb-score{font-size:1.8em;font-weight:900;color:var(--accent)}
+.lb-medal{font-size:1.8em}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat-card{background:var(--card2);border-radius:14px;padding:20px 16px;text-align:center}
+.stat-value{font-size:2em;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{color:var(--text2);font-size:.85em;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-icon{font-size:3em;margin-bottom:12px;-webkit-text-fill-color:initial}
+.empty p{font-size:1.05em}
+
+/* Confetti canvas */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+
+/* Camera / Auto tracking */
+.camera-card{position:relative;overflow:hidden}
+.camera-container{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
+#camera-video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+#camera-canvas{position:absolute;top:0;left:0;width:100%;height:100%;transform:scaleX(-1);pointer-events:none}
+.camera-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text2);text-align:center;padding:20px}
+.camera-placeholder .icon{font-size:3em;-webkit-text-fill-color:initial}
+.camera-status{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);border-radius:10px;padding:10px 14px;z-index:5}
+.camera-status .angle{font-size:1.2em;font-weight:900;color:#fff}
+.camera-status .state{font-weight:600;padding:4px 12px;border-radius:20px;font-size:.85em}
+.camera-status .state.down{background:rgba(255,77,77,.35);color:#ff6b6b}
+.camera-status .state.up{background:rgba(0,230,118,.25);color:var(--green)}
+.camera-status .state.waiting{background:rgba(255,255,255,.1);color:var(--text2)}
+.camera-loading{position:absolute;inset:0;background:rgba(10,10,15,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:6}
+.spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Timer modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:20px;padding:32px;max-width:400px;width:90%;text-align:center;border:1px solid rgba(255,255,255,.05)}
+.modal h2{font-size:1.5em;margin-bottom:16px}
+.modal p{color:var(--text2);margin-bottom:20px}
+
+/* Notification */
+.notification{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:14px 24px;border-radius:12px;font-weight:600;z-index:200;animation:notifIn .3s ease-out;pointer-events:none}
+@keyframes notifIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.notification.success{background:linear-gradient(135deg,#00c853,var(--green));color:#000}
+.notification.error{background:linear-gradient(135deg,#d50000,#ff1744);color:#fff}
+.notification.info{background:linear-gradient(135deg,var(--blue),#82b1ff);color:#000}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--card2);border-radius:3px}
+
+/* Responsive */
+@media(max-width:600px){
+  .header h1{font-size:1.7em}
+  .timer-display{font-size:3em}
+  .counter-big{font-size:5em}
+  .counter-btn{width:80px;height:80px;font-size:2em}
+  .input-group{flex-direction:column}
+  .lb-score{font-size:1.3em}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="app">
+  <header class="header">
+    <h1><span class="fire-icon">🔥</span> Битва Отжиманий <span class="fire-icon">🔥</span></h1>
+    <p>Соревнуйся, побеждай, становись лучшим!</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('counter')">⏱ Таймер</div>
+    <div class="tab" onclick="switchTab('participants')">👥 Участники</div>
+    <div class="tab" onclick="switchTab('leaderboard')">🏆 Таблица</div>
+  </div>
+
+  <!-- TIMER PAGE -->
+  <div id="page-counter" class="page active">
+    <div class="card">
+      <div class="timer-label">Время раунда</div>
+      <div class="timer-display" id="timer-display">01:00</div>
+      <div class="controls" style="margin-bottom:20px">
+        <button class="btn btn-success" id="btn-start" onclick="startTimer()">▶ Старт</button>
+        <button class="btn btn-danger" id="btn-stop" onclick="stopTimer()" disabled>⏹ Стоп</button>
+        <button class="btn btn-secondary" id="btn-reset" onclick="resetTimer()">↺ Сброс</button>
+      </div>
+      <div class="rounds">
+        <button class="round-btn active" onclick="setDuration(30,this)">0:30</button>
+        <button class="round-btn" onclick="setDuration(60,this)">1:00</button>
+        <button class="round-btn" onclick="setDuration(90,this)">1:30</button>
+        <button class="round-btn" onclick="setDuration(120,this)">2:00</button>
+        <button class="round-btn" onclick="setDuration(180,this)">3:00</button>
+        <button class="round-btn" onclick="setDuration(300,this)">5:00</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💪 Счётчик отжиманий</div>
+      <div class="card-title" style="margin-top:12px">
+        <button class="small-btn score" onclick="toggleCamera()" id="camera-toggle" style="padding:10px 16px;font-size:.9em">🎥 Включить авто-отслеживание</button>
+        <span style="color:var(--text2);font-size:.8em;font-weight:400" id="camera-hint">Отслеживание по веб-камере</span>
+      </div>
+      <div class="camera-card" id="camera-card" style="display:none;margin-bottom:16px">
+        <div class="camera-container">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas"></canvas>
+          <div class="camera-placeholder" id="camera-placeholder">
+            <div class="icon">📷</div>
+            <p>Камера выключена.<br>Нажмите кнопку, чтобы включить.</p>
+          </div>
+          <div class="camera-loading" id="camera-loading" style="display:none">
+            <div class="spinner"></div>
+            <p style="color:var(--text2);font-size:.9em">Загрузка системы распознавания позы...</p>
+          </div>
+          <div class="camera-status" id="camera-status" style="display:none">
+            <div class="angle">Угол: <span id="camera-angle">—</span>°</div>
+            <div class="state waiting" id="camera-state">Ожидание</div>
+          </div>
+        </div>
+      </div>
+      <div class="counter-section">
+        <div class="counter-big" id="counter-display">0</div>
+        <div class="counter-label">отжиманий</div>
+        <div class="counter-btns">
+          <button class="counter-btn minus" onclick="changeCounter(-1)">−</button>
+          <button class="counter-btn plus" onclick="changeCounter(1)">+</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <div class="input-group" style="max-width:300px;margin:0 auto">
+          <input class="input" id="active-participant" placeholder="Имя участника" maxlength="20">
+          <button class="btn btn-primary" onclick="saveScore()" style="white-space:nowrap">💾 Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Статистика</div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Всего участников</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-pushups">0</div><div class="stat-label">Всего отжиманий</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-best">0</div><div class="stat-label">Лучший результат</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-avg">0</div><div class="stat-label">Среднее</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTICIPANTS PAGE -->
+  <div id="page-participants" class="page">
+    <div class="card">
+      <div class="card-title">➕ Добавить участника</div>
+      <div class="input-group">
+        <input class="input" id="new-name" placeholder="Имя участника" maxlength="20">
+        <button class="btn btn-primary" onclick="addParticipant()">Добавить</button>
+      </div>
+      <div id="quick-add" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👥 Участники (<span id="participant-count">0</span>)</div>
+      <div class="participant-list" id="participant-list">
+        <div class="empty"><div class="empty-icon">🤷</div><p>Пока нет участников</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD PAGE -->
+  <div id="page-leaderboard" class="page">
+    <div class="card">
+      <div class="card-title">🏆 Таблица лидеров</div>
+      <div id="leaderboard-list">
+        <div class="empty"><div class="empty-icon">🏆</div><p>Пока нет результатов</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Victory Modal -->
+<div class="modal-overlay" id="victory-modal">
+  <div class="modal">
+    <div style="font-size:4em;-webkit-text-fill-color:initial">🎉</div>
+    <h2>Результат сохранён!</h2>
+    <p id="victory-text"></p>
+    <button class="btn btn-primary" onclick="closeModal()">Отлично!</button>
+  </div>
+</div>
+
+<script>
+// State
+let participants = JSON.parse(localStorage.getItem('pushup_participants') || '[]');
+let timerInterval = null;
+let timerRunning = false;
+let timeLeft = 60;
+let totalTime = 60;
+let counter = 0;
+
+// Tab switching
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', t.textContent.includes(
+    id==='counter'?'Таймер':id==='participants'?'Участники':'Таблица'
+  )));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(id==='leaderboard') renderLeaderboard();
+  if(id==='participants') renderParticipants();
+  if(id==='counter') updateStats();
+}
+
+// Timer
+function setDuration(sec, btn) {
+  if(timerRunning) return;
+  totalTime = sec;
+  timeLeft = sec;
+  document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateTimerDisplay();
+}
+
+function startTimer() {
+  if(timerRunning) return;
+  timerRunning = true;
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('btn-stop').disabled = false;
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    updateTimerDisplay();
+    if(timeLeft <= 0) {
+      stopTimer();
+      playBeep();
+      notify('Время вышло! ⏰','info');
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-stop').disabled = true;
+}
+
+function resetTimer() {
+  stopTimer();
+  timeLeft = totalTime;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60);
+  const s = timeLeft%60;
+  document.getElementById('timer-display').textContent = 
+    String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+// Counter
+function changeCounter(delta) {
+  counter = Math.max(0, counter + delta);
+  document.getElementById('counter-display').textContent = counter;
+  if(delta > 0) pulseElement(document.getElementById('counter-display'));
+}
+
+// Participants
+function addParticipant() {
+  const input = document.getElementById('new-name');
+  const name = input.value.trim();
+  if(!name) return notify('Введите имя!','error');
+  if(participants.find(p => p.name.toLowerCase() === name.toLowerCase())) return notify('Участник уже есть!','error');
+  participants.push({name, scores:[], total:0});
+  input.value = '';
+  saveParticipants();
+  renderParticipants();
+  notify(name+' добавлен! ✅','success');
+}
+
+function removeParticipant(idx) {
+  if(!confirm('Удалить '+participants[idx].name+'?')) return;
+  participants.splice(idx,1);
+  saveParticipants();
+  renderParticipants();
+  renderLeaderboard();
+}
+
+function addScoreToParticipant(idx, score) {
+  const p = participants[idx];
+  const roundNum = p.scores.length + 1;
+  p.scores.push(score);
+  p.total += score;
+  saveParticipants();
+  renderParticipants();
+  notify(p.name+': +'+score+' (Раунд '+roundNum+')','success');
+}
+
+function renderParticipants() {
+  const list = document.getElementById('participant-list');
+  document.getElementById('participant-count').textContent = participants.length;
+  if(!participants.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🤷</div><p>Пока нет участников</p></div>';
+    return;
+  }
+  const sorted = [...participants].sort((a,b) => b.total - a.total);
+  list.innerHTML = sorted.map((p,i) => {
+    const origIdx = participants.indexOf(p);
+    const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const roundsText = p.scores.length ? 'Раундов: '+p.scores.length : 'Без раундов';
+    return `<div class="participant">
+      <div class="participant-rank ${rankClass}">#${i+1}</div>
+      <div class="participant-info"><div class="participant-name">${esc(p.name)}</div><div class="participant-score">${p.total} отжиманий · ${roundsText}</div></div>
+      <div class="participant-actions">
+        <button class="small-btn score" onclick="quickScore(${origIdx})">+ Раунд</button>
+        <button class="small-btn delete" onclick="removeParticipant(${origIdx})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function quickScore(idx) {
+  document.querySelectorAll('.tab')[0].click();
+  document.getElementById('active-participant').value = participants[idx].name;
+  counter = 0;
+  document.getElementById('counter-display').textContent = '0';
+  notify('Отжимай! Затем сохрани результат для '+participants[idx].name,'info');
+}
+
+// Save score
+function saveScore() {
+  const name = document.getElementById('active-participant').value.trim();
+  if(!name) return notify('Введите имя участника!','error');
+  if(counter <= 0) return notify('Сначала счётчик > 0!','error');
+  
+  let p = participants.find(x => x.name.toLowerCase() === name.toLowerCase());
+  if(!p) {
+    p = {name, scores:[], total:0};
+    participants.push(p);
+  }
+  
+  p.scores.push(counter);
+  p.total += counter;
+  saveParticipants();
+  
+  document.getElementById('victory-text').textContent = name + ': ' + counter + ' отжиманий!';
+  document.getElementById('victory-modal').classList.add('show');
+  launchConfetti();
+  
+  counter = 0;
+  document.getElementById('counter-display').textContent = '0';
+  document.getElementById('active-participant').value = '';
+  updateStats();
+}
+
+function closeModal() {
+  document.getElementById('victory-modal').classList.remove('show');
+}
+
+// Leaderboard
+function renderLeaderboard() {
+  const list = document.getElementById('leaderboard-list');
+  if(!participants.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🏆</div><p>Добавьте участников</p></div>';
+    return;
+  }
+  const sorted = [...participants].sort((a,b) => b.total - a.total);
+  const medals = ['🥇','🥈','🥉'];
+  list.innerHTML = sorted.map((p,i) => {
+    const itemClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
+    const rankColor = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'';
+    const avg = p.scores.length ? Math.round(p.total/p.scores.length) : 0;
+    const medal = medals[i]||'';
+    return `<div class="leaderboard-item ${itemClass}">
+      <div class="lb-rank" style="${rankColor}">${medal || '#'+(i+1)}</div>
+      <div class="lb-info">
+        <div class="lb-name">${esc(p.name)}</div>
+        <div class="lb-rounds">Раундов: ${p.scores.length} · Среднее: ${avg} · Лучший: ${p.scores.length?Math.max(...p.scores):0}</div>
+      </div>
+      <div class="lb-score">${p.total}</div>
+    </div>`;
+  }).join('');
+}
+
+// Stats
+function updateStats() {
+  document.getElementById('stat-total').textContent = participants.length;
+  const totalPushups = participants.reduce((s,p) => s+p.total, 0);
+  document.getElementById('stat-pushups').textContent = totalPushups;
+  const best = participants.length ? Math.max(...participants.map(p=>p.total)) : 0;
+  document.getElementById('stat-best').textContent = best;
+  const avg = participants.length ? Math.round(totalPushups/participants.length) : 0;
+  document.getElementById('stat-avg').textContent = avg;
+}
+
+// Helpers
+function saveParticipants() { localStorage.setItem('pushup_participants', JSON.stringify(participants)); }
+function esc(s) { const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
+function pulseElement(el) { el.style.transform='scale(1.1)';setTimeout(()=>el.style.transform='',150); }
+
+function notify(text, type) {
+  const n = document.createElement('div');
+  n.className = 'notification '+type;
+  n.textContent = text;
+  document.body.appendChild(n);
+  setTimeout(()=>n.remove(), 2500);
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=880;g.gain.value=0.3;
+    o.start();o.stop(ctx.currentTime+0.5);
+  } catch(e) {}
+}
+
+// Confetti
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ['#ff4d4d','#ff6b35','#ffd700','#00e676','#448aff','#e040fb'];
+  const pieces = Array.from({length:120}, () => ({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height - canvas.height,
+    w: Math.random()*10+5,
+    h: Math.random()*6+3,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    vx: (Math.random()-0.5)*6,
+    vy: Math.random()*4+2,
+    rot: Math.random()*360,
+    vr: (Math.random()-0.5)*12
+  }));
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.08;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    frame++;
+    if(frame < 180) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+// ===== Auto Tracking (MoveNet + webcam) =====
+let cameraActive = false;
+let poseDetector = null;
+let camStream = null;
+let trackingEnabled = false;
+let lastElbowAngle = null;
+let pushupState = null; // null, 'down', 'up'
+let rafLoop = null;
+
+const UP_THRESHOLD = 155;
+const DOWN_THRESHOLD = 100;
+
+// Load model lazily (CDN). Uses tfjs + movenet via script tags below.
+async function loadPoseModel() {
+  try {
+    return await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
+      modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+      enableSmoothing: true
+    });
+  } catch(e) {
+    console.error('Model load failed:', e);
+    throw e;
+  }
+}
+
+async function toggleCamera() {
+  const btn = document.getElementById('camera-toggle');
+  if(cameraActive) {
+    await disableCamera();
+    btn.textContent = '🎥 Включить авто-отслеживание';
+    btn.style.background = '';
+    return;
+  }
+  btn.textContent = '⏳ Загрузка...';
+  btn.disabled = true;
+  try {
+    const status = document.getElementById('camera-status');
+    const loading = document.getElementById('camera-loading');
+    document.getElementById('camera-card').style.display = 'block';
+    status.style.display = 'flex';
+    loading.style.display = 'flex';
+
+    // Load libraries from CDN if not present
+    if(typeof poseDetection === 'undefined') {
+      await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.6/dist/pose-detection.min.js');
+      await waitForTf();
+    }
+
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 640, height: 480, facingMode: 'user' },
+      audio: false
+    });
+    const video = document.getElementById('camera-video');
+    video.srcObject = camStream;
+    await video.play();
+
+    poseDetector = await loadPoseModel();
+    trackingEnabled = true;
+    cameraActive = true;
+    document.getElementById('camera-placeholder').style.display = 'none';
+    loading.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = '⏹ Выключить камеру';
+    btn.style.background = 'rgba(255,23,68,.2)';
+    resultSync = 0;
+    startDetectionLoop();
+    notify('Авто-отслеживание включено! 👍','success');
+  } catch(e) {
+    console.error(e);
+    document.getElementById('camera-loading').style.display = 'none';
+    document.getElementById('camera-card').style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = '🎥 Включить авто-отслеживание';
+    notify('Не удалось запустить камеру: '+ (e.name||'ошибка') +'. Включите доступ к камере.','error');
+    await disableCamera();
+  }
+}
+
+async function disableCamera() {
+  trackingEnabled = false;
+  cameraActive = false;
+  if(rafLoop) { cancelAnimationFrame(rafLoop); rafLoop = null; }
+  if(camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream = null; }
+  const canvas = document.getElementById('camera-canvas');
+  if(canvas) canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  document.getElementById('camera-card').style.display = 'none';
+  document.getElementById('camera-placeholder').style.display = 'flex';
+  document.getElementById('camera-status').style.display = 'none';
+  document.getElementById('camera-angle').textContent = '—';
+  document.getElementById('camera-state').textContent = 'Ожидание';
+  document.getElementById('camera-state').className = 'state waiting';
+  poseDetector = null;
+}
+
+function loadScript(src) {
+  return new Promise((resolve,reject) => {
+    if(document.querySelector('script[src="'+src+'"]')) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Failed to load '+src));
+    document.head.appendChild(s);
+  });
+}
+
+function waitForTf() {
+  return new Promise((resolve,reject) => {
+    let tries = 0;
+    const check = () => {
+      if(typeof poseDetection !== 'undefined') return resolve();
+      if(tries++ > 100) return reject(new Error('TF timeout'));
+      setTimeout(check, 100);
+    };
+    check();
+  });
+}
+
+let resultSync = 0;
+function startDetectionLoop() {
+  if(!trackingEnabled) return;
+  const video = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  async function detect() {
+    if(!trackingEnabled) return;
+    if(poseDetector && video.readyState >= 2 && video.videoWidth > 0) {
+      try {
+        const poses = await poseDetector.estimatePoses(video, { flipHorizontal: false });
+        drawSkeleton(ctx, poses, canvas);
+        if(poses && poses[0]) analyzePose(poses[0]);
+      } catch(e) { /* ignore frame errors */ }
+    }
+    if(trackingEnabled) rafLoop = requestAnimationFrame(detect);
+  }
+  detect();
+}
+
+function drawSkeleton(ctx, poses, canvas) {
+  if(!poses || !poses[0]) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const k = poses[0].keypoints;
+  const point = idx => k[idx] && k[idx].score > 0.3 ? k[idx] : null;
+  const shoulders = [point(11), point(12)].filter(Boolean);
+  if(!shoulders.length) return;
+
+  const conf = 0.3;
+  const line = (a,b,c='#00e676') => {
+    if(!k[a]||!k[b]||k[a].score<conf||k[b].score<conf) return;
+    ctx.strokeStyle=c;ctx.lineWidth=3;ctx.beginPath();
+    ctx.moveTo(k[a].x,k[a].y);ctx.lineTo(k[b].x,k[b].y);ctx.stroke();
+  };
+  // left arm
+  line(11,13);line(13,15);line(11,23);
+  // right arm
+  line(12,14);line(14,16);line(12,24);
+  // body
+  line(11,12);line(23,24);line(23,11);line(24,12);
+  // legs
+  line(23,25);line(25,27);line(24,26);line(26,28);
+
+  // draw keypoints
+  for(let i=0;i<=28;i++){
+    if(k[i] && k[i].score>conf){
+      ctx.fillStyle='#ffd700';ctx.beginPath();ctx.arc(k[i].x,k[i].y,4,0,2*Math.PI);ctx.fill();
+    }
+  }
+}
+
+function angle3(a,b,c) {
+  const ab = {x:a.x-b.x, y:a.y-b.y};
+  const cb = {x:c.x-b.x, y:c.y-b.y};
+  const dot = ab.x*cb.x + ab.y*cb.y;
+  const mag = Math.sqrt(ab.x*ab.x+ab.y*ab.y) * Math.sqrt(cb.x*cb.x+cb.y*cb.y);
+  if(!mag) return 0;
+  const deg = Math.acos(Math.min(1,Math.max(-1,dot/mag))) * 180/Math.PI;
+  return Math.round(deg);
+}
+
+function analyzePose(pose) {
+  const k = pose.keypoints;
+  const conf = 0.4;
+  const p = (i) => k[i] && k[i].score > conf ? k[i] : null;
+  // Use the elbow that is most visible; prefer side facing camera area
+  const lElbow = p(13), lWrist = p(15), lShoulder = p(11);
+  const rElbow = p(14), rWrist = p(16), rShoulder = p(12);
+
+  let elbow = null, shoulder = null, wrist = null, side = null;
+  const lScore = knot(lElbow)+knot(lWrist)+knot(lShoulder);
+  const rScore = knot(rElbow)+knot(rWrist)+knot(rShoulder);
+  if(lScore >= rScore) { elbow=lElbow; shoulder=lShoulder; wrist=lWrist; side='L'; }
+  else { elbow=rElbow; shoulder=rShoulder; wrist=rWrist; side='R'; }
+
+  if(!elbow || !shoulder || !wrist) {
+    document.getElementById('camera-angle').textContent = '—';
+    setState('waiting','Не видно тела');
+    return;
+  }
+
+  const ang = angle3(shoulder, elbow, wrist);
+  lastElbowAngle = ang;
+  document.getElementById('camera-angle').textContent = ang;
+
+  // State machine
+  if(pushupState === null) {
+    pushupState = ang > UP_THRESHOLD ? 'up' : (ang < DOWN_THRESHOLD ? 'down' : 'up');
+  }
+
+  if(pushupState === 'down' && ang > UP_THRESHOLD) {
+    // Completed one rep
+    pushupState = 'up';
+    changeCounter(1);
+    pulseElement(document.querySelector('.counter-big'));
+    setState('up','Вверх 👍');
+    lastRepTime = Date.now();
+  } else if(pushupState === 'up' && ang < DOWN_THRESHOLD) {
+    pushupState = 'down';
+    setState('down','Вниз 👇');
+  } else {
+    setState(pushupState, pushupState==='down' ? 'Вниз 👇' : 'Вверх ⬆');
+  }
+}
+
+function knot(pt){ return pt ? pt.score : 0; }
+
+let lastRepTime = 0;
+function setState(cls, text) {
+  const el = document.getElementById('camera-state');
+  el.className = 'state '+cls;
+  el.textContent = text;
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if(e.key==='Enter') {
+    if(document.activeElement.id==='new-name') addParticipant();
+    if(document.activeElement.id==='active-participant') saveScore();
+  }
+});
+
+// Init
+updateStats();
+renderParticipants();
+</script>
+</body>
+</html>
